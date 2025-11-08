@@ -1,7 +1,33 @@
 from fastapi import FastAPI
+import pickle
 from datetime import datetime
 import uvicorn
-import pickle
+import sys
+import pandas as pd
+
+
+from app.constans import MODEL_PATH, PREPROCESSOR_PATH
+from model.adaboost_custom import (
+    SimpleAdaBoost,
+    TitanicPipeline,
+    TitanicOutliersTransformer,
+    ExpectedColumns,
+    TitanicCategoriesTransformer,
+    TitanicImputationTransformer,
+    TitanicScalingTransformer,
+)
+
+setattr(sys.modules.get("__main__"), "SimpleAdaBoost", SimpleAdaBoost)
+setattr(sys.modules.get("__main__"), "TitanicPipeline", TitanicPipeline)
+setattr(sys.modules.get("__main__"), "TitanicOutliersTransformer", TitanicOutliersTransformer)
+setattr(sys.modules.get("__main__"), "ExpectedColumns", ExpectedColumns)
+setattr(sys.modules.get("__main__"), "TitanicCategoriesTransformer", TitanicCategoriesTransformer)
+setattr(sys.modules.get("__main__"), "TitanicImputationTransformer", TitanicImputationTransformer)
+setattr(sys.modules.get("__main__"), "TitanicScalingTransformer", TitanicScalingTransformer)
+
+
+model = pickle.load(open(MODEL_PATH, "rb"))
+preprocessor = pickle.load(open(PREPROCESSOR_PATH, "rb"))
 
 app = FastAPI(title="API ligera", version="0.1")
 
@@ -21,30 +47,39 @@ async def info():
     Devuelve información básica sobre la API.
     """
     return {
-        "team": "Equipo de Desarrollo",
+        "team": "macbuntu",
         "model" : "AdaBoostClassifier",
         "base_estimator" : "DecisionTreeClassifier(max_depth=1)",
-        "n_estimators": 50,
+        "n_estimators": 100,
         "preprocessing": {
-            "pclass": 5,
-            "sex": "male",
-            "age": 30,
-            "sibsp": 0,
-            "parch": 0,
-            "fare": 10.5,
-            "embarked": "S"
+            "pclass": "Selected by ExpectedColumns; if missing imputed with most_frequent; one-hot encoded (OneHotEncoder drop='first', handle_unknown='error') producing N-1 binary columns; unseen categories raise an error.",
+            "sex": "Selected by ExpectedColumns; if missing imputed with most_frequent; one-hot encoded (drop='first') producing binary column(s); no scaling applied.",
+            "age": "Outlier rule: values > 100 -> set to NaN; imputed with median(age); then scaled with StandardScaler -> (age - mean)/scale.",
+            "sibsp": "If missing imputed with median(sibsp); then scaled with StandardScaler.",
+            "parch": "If missing imputed with median(parch); then scaled with StandardScaler.",
+            "fare": "Capped at upper = Q3 + 1.5*IQR for outliers; if missing imputed with median(fare); then scaled with StandardScaler.",
+            "embarked": "If missing imputed with most_frequent; one-hot encoded (drop='first', handle_unknown='error') producing N-1 binary columns; unseen categories raise an error."
         }
     }
 
 @app.post("/predict", tags=["prediction"])
 async def predict(data: dict):
     """
-    Endpoint de predicción.
-    Recibe datos y devuelve una predicción simulada.
+        Endpoint de predicción.
     """
-    return {
-        "prediction": "resultado_ejemplo",
-        "input_received": data,
-        "timestamp": datetime.utcnow().isoformat() + "Z"
-    }
+    try:
+        features = pd.DataFrame([data["features"]])
+        processed = preprocessor.transform(features)
+        prediction = model.predict(processed)
+        return {
+            "prediction": int(prediction),
+        }
+    except Exception as e:
+        return {
+            "error" : "Error in prediction"
+        }
 
+
+
+def start():
+    uvicorn.run(app, host="0.0.0.0", port=8000,)
