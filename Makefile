@@ -22,4 +22,10 @@ clean:
 	docker image rm $(IMAGE_NAME)
 
 package:
-	tar -czf $(TEAM_NAME).tar.gz --exclude='*.tar.gz' --exclude='.git' --exclude='__pycache__' --exclude='*.pyc' .
+	tar -czf $(TEAM_NAME).tar.gz --exclude='$(TEAM_NAME).tar.gz' --exclude='*.tar.gz' --exclude='.git' --exclude='__pycache__' --exclude='*.pyc' --exclude='.pytest_cache' --exclude='env' .
+
+unpack:
+	tar -xzf $(TEAM_NAME).tar.gz
+
+dev:
+	uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
