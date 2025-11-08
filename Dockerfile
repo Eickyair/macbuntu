@@ -28,13 +28,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Crear usuario no root
 RUN useradd -m -u 1000 appuser
 
-# Copiar solo las dependencias instaladas desde el builder
 COPY --from=builder /install /usr/local
 
-# Copiar el código de la aplicación
 COPY --chown=appuser:appuser . .
 
 USER appuser
