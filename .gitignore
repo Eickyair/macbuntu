@@ -1,0 +1,6 @@
+#python
+*.py[cod]
+__pycache__/
+
+#editor vscode
+.vscode/
