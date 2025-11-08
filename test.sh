@@ -48,7 +48,6 @@ send_request() {
     body="$(cat "$tmp")"
     rm -f "$tmp"
 
-    # Intentar formatear JSON si jq esta disponible y la respuesta parece JSON
     local pretty="$body"
     if command -v jq >/dev/null 2>&1 && [[ "$body" =~ ^[[:space:]]*[\{\[] ]]; then
         pretty="$(printf "%s" "$body" | jq . 2>/dev/null || printf "%s" "$body")"
@@ -68,22 +67,20 @@ send_request() {
 run_requests() {
     local base="$1"
 
-    # Si no tiene esquema, asumimos http://
     if [[ "$base" != http://* && "$base" != https://* ]]; then
         base="http://$base"
     fi
 
-    # Eliminar posible slash final
     base="${base%/}"
 
     send_request GET  "${base}/health" || return $?
     send_request GET  "${base}/info"   || return $?
-    send_request POST "${base}/predict" '{"features": [0.1, 1.2, -0.3, 2.4]}' || return $?
+    send_request POST "${base}/predict" '{"features": {"pclass": 3, "sex": "male", "age": 59.0, "sibsp": 0, "parch": 0, "fare": 7.25, "embarked": "S"}}' || return $?
 
     ok "Todas las peticiones realizadas correctamente."
 }
 
-# Si se ejecuta el script directamente, llamar a la funcion con el primer argumento
+
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
     if [[ $# -lt 1 ]]; then
         echo "Uso: $0 <base-url-con-puerto>  (ej: localhost:8000 o http://localhost:8000)" >&2
