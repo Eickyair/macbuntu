@@ -1,15 +1,9 @@
 from fastapi import FastAPI
 from datetime import datetime
-import platform
 import uvicorn
 import pickle
-model = 
 
 app = FastAPI(title="API ligera", version="0.1")
-
-@app.get("/", tags=["root"])
-async def read_root():
-    return {"message": "API ligera funcionando", "status": "ok"}
 
 @app.get("/health", tags=["health"])
 async def health():
@@ -18,9 +12,28 @@ async def health():
     Devuelve estado, timestamp UTC y nombre del host.
     """
     return {
-        "status": "healthy",
-        "time": datetime.utcnow().isoformat() + "Z",
-        "host": platform.node(),
+        "status": "ok"
+    }
+@app.get("/info", tags=["info"])
+async def info():
+    """
+    Endpoint de información.
+    Devuelve información básica sobre la API.
+    """
+    return {
+        "team": "Equipo de Desarrollo",
+        "model" : "AdaBoostClassifier",
+        "base_estimator" : "DecisionTreeClassifier(max_depth=1)",
+        "n_estimators": 50,
+        "preprocessing": {
+            "pclass": 5,
+            "sex": "male",
+            "age": 30,
+            "sibsp": 0,
+            "parch": 0,
+            "fare": 10.5,
+            "embarked": "S"
+        }
     }
 
 @app.post("/predict", tags=["prediction"])
@@ -35,6 +48,3 @@ async def predict(data: dict):
         "timestamp": datetime.utcnow().isoformat() + "Z"
     }
 
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
