@@ -1,7 +1,7 @@
-IMAGE_NAME=mi-imagen:latest
-CONTAINER_NAME=adaboost-container
+IMAGE_NAME=adaboost-api:latest
+CONTAINER_NAME=adaboost-container-api
 PORT=8000
-TEAM_NAME=equipo_demo # Cambiar por el identificador del equipo
+TEAM_NAME=equipo_macbuntu
 
 build:
 	docker build -t $(IMAGE_NAME) .
@@ -17,7 +17,9 @@ stop:
 	docker rm $(CONTAINER_NAME)
 
 clean:
-	docker system prune -f
+	docker stop $(CONTAINER_NAME)
+	docker rm $(CONTAINER_NAME)
+	docker image rm $(IMAGE_NAME)
 
 package:
 	tar -czf $(TEAM_NAME).tar.gz --exclude='*.tar.gz' --exclude='.git' --exclude='__pycache__' --exclude='*.pyc' .
