@@ -2,3 +2,13 @@
 *
 !app/
 !model/
+!main.py
+
+
+
+.env
+*.pyc
+__pycache__/
+.git
+*.log
+.DS_Store

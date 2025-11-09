@@ -1,12 +1,11 @@
 from fastapi import FastAPI
 import pickle
-from datetime import datetime
 import uvicorn
 import sys
 import pandas as pd
 
 
-from app.constans import MODEL_PATH, PREPROCESSOR_PATH
+from app.constans import MODEL_PATH, PREPROCESSOR_PATH,CSV_PATH_TRAIN
 from model.adaboost_custom import (
     SimpleAdaBoost,
     TitanicPipeline,
@@ -78,7 +77,16 @@ async def predict(data: dict):
         return {
             "error" : "Error in prediction"
         }
-
+# train endpoint
+@app.get("/train", tags=["training"])
+async def train():
+    data = pd.read_csv(CSV_PATH_TRAIN)
+    preprocessorData = preprocessor.transform(data)
+    print(preprocessorData)
+    return {
+        "status": "success",
+        "message": "Model trained successfully"
+    }
 
 
 def start():

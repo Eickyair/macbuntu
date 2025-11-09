@@ -76,7 +76,7 @@ run_requests() {
     send_request GET  "${base}/health" || return $?
     send_request GET  "${base}/info"   || return $?
     send_request POST "${base}/predict" '{"features": {"pclass": 3, "sex": "male", "age": 59.0, "sibsp": 0, "parch": 0, "fare": 7.25, "embarked": "S"}}' || return $?
-
+    send_request GET  "${base}/train" || return $?
     ok "Todas las peticiones realizadas correctamente."
 }
 

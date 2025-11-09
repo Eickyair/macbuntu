@@ -27,5 +27,5 @@ package:
 unpack:
 	tar -xzf $(TEAM_NAME).tar.gz
 
-dev:
-	uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+test:
+	python ./test_requests.py
