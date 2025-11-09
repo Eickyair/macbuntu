@@ -288,7 +288,7 @@ python test_requests.py
 
 *Análisis de la evolución de pesos αₜ y errores εₜ durante el entrenamiento*
 
-### Métricas Clave
+### Métricas
 
 ```
 📈 Rendimiento del Modelo:
