@@ -27,23 +27,14 @@ RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel && \
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN useradd -m -u 1000 appuser && \
-    apt-get update && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 COPY --from=builder /install /usr/local
 
-COPY --chown=appuser:appuser . .
-
-USER appuser
+COPY . .
 
 EXPOSE 8000
 
-CMD ["python","main.py"]
+CMD ["python", "main.py"]

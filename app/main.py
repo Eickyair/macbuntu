@@ -3,6 +3,7 @@ import pickle
 import uvicorn
 import sys
 import pandas as pd
+import time
 
 
 from app.constans import MODEL_PATH, PREPROCESSOR_PATH,CSV_PATH_TRAIN
@@ -80,14 +81,29 @@ async def predict(data: dict):
 # train endpoint
 @app.get("/train", tags=["training"])
 async def train():
-    data = pd.read_csv(CSV_PATH_TRAIN)
-    preprocessorData = preprocessor.transform(data)
-    print(preprocessorData)
-    return {
-        "status": "success",
-        "message": "Model trained successfully"
-    }
+    try:
+        start_time = time.time()
+
+        data = pd.read_csv(CSV_PATH_TRAIN)
+        n_samples = len(data)
+        preprocessorData = preprocessor.transform(data)
+        y = data["survived"].map(preprocessor.transformTarget)
+        model.fit(preprocessorData, y)
+        elapsed_time = time.time() - start_time
+
+        return {
+            "status": "success",
+            "message": "Model trained successfully",
+            "training_samples": n_samples,
+            "elapsed_time_seconds": round(elapsed_time, 2)
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": "Error during training",
+            "error": str(e)
+        }
 
 
 def start():
-    uvicorn.run(app, host="0.0.0.0", port=8000,)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
