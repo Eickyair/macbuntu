@@ -15,7 +15,7 @@ Ver Demo • Instalación • Características • Documentación
 
 ---
 
-## 📋 Descripción del Proyecto
+## 📋 Descripción General
 
 Predicción de supervivencia del Titanic implementando **AdaBoost desde cero** y desplegándolo como una **API REST containerizada con Docker**.
 
