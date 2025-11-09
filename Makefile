@@ -7,19 +7,22 @@ build:
 	docker build -t $(IMAGE_NAME) .
 
 run:
+	-docker stop $(CONTAINER_NAME) 2>/dev/null || true
+	-docker rm $(CONTAINER_NAME) 2>/dev/null || true
 	docker run -d --name $(CONTAINER_NAME) -p $(PORT):$(PORT) $(IMAGE_NAME)
+
 
 status:
 	docker ps -a --filter name=$(CONTAINER_NAME)
 
 stop:
-	docker stop $(CONTAINER_NAME)
-	docker rm $(CONTAINER_NAME)
+	docker stop $(CONTAINER_NAME) 2>/dev/null || true
+	docker rm $(CONTAINER_NAME) 2>/dev/null || true
 
 clean:
-	docker stop $(CONTAINER_NAME)
-	docker rm $(CONTAINER_NAME)
-	docker image rm $(IMAGE_NAME)
+	docker stop $(CONTAINER_NAME) 2>/dev/null || true
+	docker rm $(CONTAINER_NAME) 2>/dev/null || true
+	docker image rm $(IMAGE_NAME) 2>/dev/null || true
 
 package:
 
